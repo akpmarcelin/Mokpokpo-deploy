@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Gérant - Agri-Supply</title>
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome (Nécessaire pour les icônes) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+    body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
+    .navbar { background-color: #2E7D32; color:white; }
+    .btn-primary { background-color:#2E7D32; border-color:#2E7D32; }
+    .btn-primary:hover { background-color:#1B5E20; border-color:#1B5E20; }
+    .btn-info { background-color:#1565C0; border-color:#1565C0; color:white; }
+    .btn-warning { background-color:#FFEB3B; border-color:#FDD835; color:#333; }
+    .card { margin-bottom:1.5rem; }
+    
+    /* CSS pour l'en-tête vert foncé */
+    .card-header-custom {
+        background: linear-gradient(to right, #1B5E20, #2E7D32);
+        color: white;
+        border-radius: 16px 16px 0 0;
+    }
+</style>
+</head>
+<body>
+<!-- Styles à ajouter dans la balise <style> de votre fichier -->
+<style>
+    /* --- CSS Navbar Blanche (Pro) --- */
+    .navbar-white {
+        background-color: #ffffff;
+        box-shadow: 0 1px 10px rgba(0,0,0,0.04);
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+    .nav-avatar {
+        width: 36px;
+        height: 36px;
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-weight: bold;
+    }
+</style>
+
+<!-- --- DÉBUT DU HTML DU HAUT DE PAGE --- -->
+
+<!-- 1. NAVBAR BLANCHE -->
+<nav class="navbar navbar-expand-lg navbar-white sticky-top">
+    <div class="container">
+        <!-- Logo à gauche -->
+        <a class="navbar-brand fw-bold text-success" href="#">
+            <i class="fas fa-leaf me-2"></i>Agri-Supply
+        </a>
+        
+        <!-- (Barre de recherche supprimée) -->
+
+        <!-- Profil à droite -->
+        <div class="d-flex align-items-center ms-auto">
+            <div class="text-end me-3 d-none d-sm-block">
+                <div class="fw-bold text-dark" style="font-size: 0.9rem;">Gérant</div>
+            </div>
+            <!-- Lien Django conservé -->
+            <a href="{% url 'index' %}" class="btn btn-outline-light text-danger btn-sm rounded-pill border-danger px-3">Déconnexion</a>
+            <div class="nav-avatar ms-2">G</div>
+        </div>
+    </div>
+</nav>
+
+<!-- 2. CONTAINER + EN-TÊTE SIMPLE -->
+<div class="container mt-5">
+    
+    <div class="row align-items-end mb-3">
+        <div class="col-md-8">
+            <!-- Badge d'identité -->
+            <span class="badge bg-success bg-opacity-10 text-success mb-2 rounded-pill px-3">
+                <i class="fas fa-tachometer-alt me-1"></i><h6>Espace Gérant</h6>
+            </span>
+            <!-- Titre -->
+            <h1 class="fw-bold text-dark mb-0">Tableau de bord</h1>
+        </div>
+        
+    </div>
+
+    <!-- Ligne décorative verte pour l'harmonie -->
+    <div class="bg-success bg-opacity-25 rounded-pill mb-5" style="height: 3px; width: 100%;"></div>
+
+</div>
+<!-- (Fin du code du haut) -->
+<div class="container mt-4">
+
+    <!-- Tableau des employés -->
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        
+        <!-- En-tête avec dégradé Vert (Classe card-header-custom ajoutée) -->
+        <div class="card-header card-header-custom pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+            <h4 class="fw-bold mb-0 text-white"><i class="fas fa-users me-2"></i>Liste des employés</h4>
+            <!-- Badge blanc pour le contraste -->
+            <span class="badge bg-white text-success rounded-pill">Total: {{ employes|length }}</span>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <!-- En-tête du tableau Vert -->
+                    <thead class="text-white">
+                        <tr class="table-success">
+                            <th class="text-uppercase fw-bold fs-6 border-0 py-3 ps-3">Nom complet</th>
+                            <th class="text-uppercase fw-bold fs-6 border-0 py-3">Rôle</th>
+                            <th class="text-uppercase fw-bold fs-6 border-0 py-3">Email</th>
+                            <th class="text-uppercase fw-bold fs-6 border-0 py-3">Téléphone</th>
+                            <th class="text-uppercase fw-bold fs-6 border-0 py-3 pe-3 text-end">Date d'inscription</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in employes %}
+                        <tr>
+                            <td class="ps-3">
+                                <!-- Avatar : La couleur change selon le rôle -->
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-white 
+                                        {% if emp.role.nom == 'Grossiste' %}text-warning
+                                        {% elif emp.role.nom == 'Agriculteur' %}text-success
+                                        {% elif emp.role.nom == 'Livreur' %}text-info
+                                        {% else %}text-primary
+                                        {% endif %} 
+                                        d-flex align-items-center justify-content-center me-3 shadow-sm" 
+                                        style="width: 35px; height: 35px; font-weight: bold;">
+                                        {{ emp.get_full_name|slice:":1" }}
+                                    </div>
+                                    <span class="fw-bold text-dark">{{ emp.get_full_name }}</span>
+                                </div>
+                            </td>
+                            <!-- Badge : La couleur change selon le rôle -->
+                            <td>
+                                <span class="badge border fw-normal 
+                                    {% if emp.role.nom == 'Grossiste' %}bg-warning text-dark
+                                    {% elif emp.role.nom == 'Agriculteur' %}bg-success
+                                    {% elif emp.role.nom == 'Livreur' %}bg-info
+                                    {% else %}bg-primary
+                                    {% endif %}">
+                                    {{ emp.role.nom }}
+                                </span>
+                            </td>
+                            <td class="text-muted">{{ emp.email }}</td>
+                            <td class="text-muted">{{ emp.telephone }}</td>
+                            <td class="text-end text-muted small">{{ emp.date_inscription|date:"d M Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                        
+                        {% if employes|length == 0 %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="fas fa-inbox fa-2x mb-3 opacity-25"></i><br>
+                                Aucun employé trouvé pour le moment.
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des mouvements de stock -->
+<div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+    
+    <!-- En-tête avec dégradé Vert -->
+    <div class="card-header card-header-custom pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+        <h4 class="fw-bold mb-0 text-white"><i class="fas fa-exchange-alt me-2"></i>Historique des mouvements de stock</h4>
+    </div>
+
+    <div class="card-body p-4">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <!-- En-tête du tableau Vert -->
+                <thead class="text-white">
+                    <tr class="table-success">
+                        <th class="text-uppercase fw-bold fs-6 border-0 py-3 ps-3">Lot</th>
+                        <th class="text-uppercase fw-bold fs-6 border-0 py-3">Type</th>
+                        <th class="text-uppercase fw-bold fs-6 border-0 py-3">Quantité</th>
+                        <th class="text-uppercase fw-bold fs-6 border-0 py-3">Source</th>
+                        <th class="text-uppercase fw-bold fs-6 border-0 py-3">Destination</th>
+                        <th class="text-uppercase fw-bold fs-6 border-0 py-3">Utilisateur</th>
+                        <th class="text-uppercase fw-bold fs-6 border-0 py-3 pe-3 text-end">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mv in mouvements %}
+                    <tr>
+                        <!-- Code Lot en Gras -->
+                        <td class="ps-3 fw-bold text-primary">{{ mv.lot.code_lot }}</td>
+                        
+                        <!-- Type avec Couleur dynamique et Icône -->
+                        <td>
+                            {% if mv.type_mouvement == 'Entrée' %}
+                                <span class="badge bg-success bg-opacity-75 border border-success border-opacity-25">
+                                    <i class="fas fa-arrow-down me-1"></i> {{ mv.type_mouvement }}
+                                </span>
+                            {% elif mv.type_mouvement == 'Sortie' %}
+                                <span class="badge bg-danger bg-opacity-75 border border-danger border-opacity-25">
+                                    <i class="fas fa-arrow-up me-1"></i> {{ mv.type_mouvement }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-warning bg-opacity-75 border border-info border-opacity-25">
+                                    <i class="fas fa-exchange-alt me-1"></i> {{ mv.type_mouvement }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Quantité -->
+                        <td class="fw-bold text-dark">{{ mv.quantite }} kg</td>
+                        
+                        <!-- Source -->
+                        <td class="text-muted small">
+                            {% if mv.source_emplacement %}
+                                <span class="badge bg-light text-secondary border">{{ mv.source_emplacement.code_emplacement }} - {{ mv.source_emplacement.entrepot.nom }}</span>
+                            {% else %}
+                                <span class="text-muted fst-italic">-</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Destination -->
+                        <td class="text-muted small">
+                            {% if mv.destination_emplacement %}
+                                <span class="badge bg-light text-secondary border">{{ mv.destination_emplacement.code_emplacement }} - {{ mv.destination_emplacement.entrepot.nom }}</span>
+                            {% else %}
+                                <span class="text-muted fst-italic">-</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Utilisateur -->
+                        <td class="text-dark">{{ mv.utilisateur.get_full_name }}</td>
+                        
+                        <!-- Date alignée à droite -->
+                        <td class="text-end text-muted small pe-3">{{ mv.date|date:"d M Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                    
+                    {% if mouvements|length == 0 %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fas fa-history fa-2x mb-3 opacity-25"></i><br>
+                            Aucun mouvement de stock enregistré pour le moment.
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+    <!-- Section prédictions -->
+    <!-- Section prédictions -->
+<div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+    
+    <!-- En-tête avec dégradé Vert -->
+    <div class="card-header card-header-custom pt-4 px-4 pb-0">
+        <h4 class="fw-bold mb-0 text-white"><i class="fas fa-chart-line me-2"></i>Prédictions IA</h4>
+    </div>
+
+    <div class="card-body p-5 text-center">
+        <p class="text-muted mb-4">Accédez aux prévisions de stock et ventes via le modèle IA.</p>
+        <a href="{% url 'gerant_predictions' %}" class="btn btn-info btn-lg rounded-pill px-4 shadow-sm">
+            <i class="fas fa-magic me-2"></i>Voir les prédictions
+        </a>
+    </div>
+</div>
+
+</div>
+</body>
+</html>

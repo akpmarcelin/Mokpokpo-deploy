@@ -1,0 +1,368 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Livreur - Mokpokpo-Supply</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Font: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- 1. FOND --- */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+            background-image: linear-gradient(to bottom right, rgba(21, 101, 192, 0.03), rgba(35, 213, 171, 0.03));
+            color: #444;
+            min-height: 100vh;
+        }
+        
+        /* --- 2. NAVBAR --- */
+        .nav-float {
+            background: rgba(255,255,255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            border-bottom: 1px solid rgba(255,255,255,0.9);
+            padding-top: 0.8rem;
+            padding-bottom: 0.8rem;
+        }
+        .nav-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #1565C0, #23d5ab);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3);
+        }
+
+        /* --- 3. CARTE PREMIUM --- */
+        .card-lux {
+            border: none;
+            border-top: 5px solid #1565C0;
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.04);
+            background: #ffffff;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .card-lux:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+        }
+        
+        /* --- TABLEAU --- */
+        .table th {
+            font-weight: 700;
+            color: #555;
+            font-size: 0.85rem;
+            border-bottom: 0px;
+            padding: 1.4rem 1rem;
+            background-color: transparent;
+            letter-spacing: 0.5px;
+        }
+        .table td {
+            padding: 1.4rem 1rem;
+            vertical-align: middle;
+            color: #444;
+            border-bottom: 1px solid #f5f6f8;
+            font-weight: 500;
+        }
+        .table tr:hover td {
+            background-color: #f8fbff;
+        }
+        
+        .group-row {
+            background-color: #f8fbff;
+            color: #1565C0;
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 10px;
+            margin: 0.5rem 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
+        }
+        .section-header {
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* --- AVATAR --- */
+        .avatar-circle {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #e3f2fd, #ffffff);
+            color: #1565C0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 15px;
+            box-shadow: 0 2px 8px rgba(21, 101, 192, 0.15);
+            border: 1px solid #e3f2fd;
+        }
+        
+        /* --- BOUTONS --- */
+        .btn-lux {
+            border-radius: 50px;
+            font-weight: 600;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        .btn-primary-lux {
+            background: linear-gradient(135deg, #1565C0, #2196f3);
+            color: white;
+            box-shadow: 0 4px 15px rgba(21, 101, 192, 0.25);
+        }
+        .btn-primary-lux:hover {
+            box-shadow: 0 6px 20px rgba(21, 101, 192, 0.35);
+            transform: translateY(-1px);
+            color: white;
+        }
+        .btn-success-lux {
+            background: linear-gradient(135deg, #2e7d32, #43a047);
+            color: white;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.25);
+        }
+        .btn-success-lux:hover {
+            box-shadow: 0 6px 20px rgba(46, 125, 50, 0.35);
+            transform: translateY(-1px);
+            color: white;
+        }
+
+        /* --- BOUTON DÉCONNEXION PROPRE --- */
+        .btn-clean-logout {
+            background-color: #fff;
+            color: #555;
+            border: 1px solid #dee2e6;
+            border-radius: 50px;
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.2s ease;
+        }
+        .btn-clean-logout:hover {
+            background-color: #f1f3f5;
+            color: #000;
+            border-color: #adb5bd;
+        }
+
+        .align-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- 4. SÉPARATRICE INTÉRIEURE (NOUVEAU) --- */
+        .separator-lux {
+            height: 4px;
+            width: 100%;
+            background: linear-gradient(90deg, #1565C0, #23d5ab);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(21, 101, 192, 0.15);
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg nav-float sticky-top">
+    <div class="container">
+        <span class="navbar-brand fw-bold" style="color: #1565C0; font-size: 1.4rem;">
+            <i class="bi bi-truck-fill me-2"></i>Mokpokpo-Supply
+        </span>
+        <div class="d-flex align-items-center ms-auto">
+            <a href="{% url 'login' %}" class="btn btn-clean-logout btn-sm px-4 me-3">
+                <i class="bi bi-box-arrow-right me-2"></i> Déconnexion
+            </a>
+            <div class="nav-avatar">L</div>
+        </div>
+    </div>
+</nav>
+
+<div class="container my-5">
+
+    <!-- MESSAGES -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show shadow-sm border-0 rounded-4" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- --- EN-TÊTE (TEXTES AGRANDIS) --- -->
+    <div class="row mb-5 align-items-end">
+        <div class="col-12">
+            <h5 class="fw-bold text-dark" style="font-size: 2.5rem; letter-spacing: -1px; line-height: 1.1;">Tableau de bord</h5>
+            <p class="text-muted mb-0 fw-light" style="font-size: 1.4rem; opacity: 0.8;">Gérez vos livraisons et itinéraires quotidiens.</p>
+            <div class="bg-primary bg-opacity-10 rounded-pill mt-4" style="height: 5px; width: 80px;"></div>
+        </div>
+    </div>
+
+    <!-- ================= LIVRAISONS EN COURS ================= -->
+    <div class="card-lux mb-0">
+        <div class="card-body p-5">
+            
+            <!-- HEADER + SÉPARATRICE INTÉRIEURE -->
+            <div class="section-header">
+                <h5 class="fw-bold text-dark m-0" style="font-size: 1.3rem;"><i class="bi bi-clock-history text-primary me-2"></i>Livraisons en cours</h5>
+                <span class="badge bg-light text-primary border border-primary border-opacity-25 rounded-pill px-4">Aujourd'hui</span>
+            </div>
+            <!-- LIGNE COLORÉE INTÉRIEURE -->
+            <div class="separator-lux"></div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Ordre</th>
+                            <th>Numéro</th>
+                            <th>Grossiste</th>
+                            <th>Téléphone</th>
+                            <th>Localisation</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for groupe in groupes %}
+                        <!-- Ligne Groupée par Date -->
+                        <tr class="group-row">
+                            <td colspan="7" class="ps-4 py-3">
+                                <div class="d-flex justify-content-between align-items-center w-100">
+                                    <span style="font-size: 1.1rem;"><i class="bi bi-calendar-event me-2"></i> {{ groupe.date|date:"d/m/Y" }}</span>
+                                    {% if groupe.peut_optimiser %}
+                                    <a href="{% url 'optimiser_tournee_livreur' %}?date={{ groupe.date|date:'Y-m-d' }}" 
+                                       class="btn btn-lux btn-primary-lux btn-sm ms-3 px-4">
+                                        <i class="bi bi-diagram-3 me-2"></i> Optimiser
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+
+                        {% for livraison in groupe.livraisons %}
+                        <tr>
+                            <td class="fw-bold" style="color: #1565C0; font-size: 1.1rem;">{{ forloop.counter }}</td>
+
+                            <td class="fw-bold text-dark" style="font-size: 1.05rem;">{{ livraison.numero }}</td>
+
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <span class="fw-bold text-dark" style="font-size: 1.05rem;">{{ livraison.grossiste.get_full_name|default:livraison.grossiste.username }}</span>
+                                </div>
+                            </td>
+
+                            <td class="text-muted small">{{ livraison.grossiste.telephone }}</td>
+
+                            <td>
+                                {% if livraison.grossiste.latitude and livraison.grossiste.longitude %}
+                                <a href="https://www.google.com/maps/search/?api=1&query={{ livraison.grossiste.latitude|urlencode }},{{ livraison.grossiste.longitude|urlencode }}" 
+                                   target="_blank" 
+                                   class="btn btn-light btn-sm text-primary border fw-normal shadow-sm rounded-pill px-4 align-btn">
+                                    <i class="bi bi-geo-alt-fill me-2"></i> Itinéraire
+                                </a>
+                                {% else %}
+                                <span class="text-muted small fst-italic">Non spécifiée</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-muted small">{{ livraison.date_livraison|date:"d/m/Y" }}</td>
+
+                            <td>
+                                {% if livraison.statut == "EN_ROUTE" %}
+                                <form method="POST" action="{% url 'livreur_marquer_livree' livraison.id %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-lux btn-success-lux rounded-pill px-4 align-btn">
+                                        <i class="bi bi-check-circle me-2"></i> Livrée
+                                    </button>
+                                </form>
+                                {% else %}
+                                <span class="badge bg-light text-secondary border rounded-pill px-4 py-2" style="font-size: 0.9rem;">Préparation</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fa-2x mb-3 opacity-25"></i><br>
+                                Aucune livraison en cours.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= LIVRAISONS EFFECTUÉES (AVEC SÉPARATRICE) ================= -->
+    <div class="card-lux mt-5">
+        <div class="card-body p-5">
+            <!-- HEADER NORMAL -->
+            <div class="section-header" style="border-bottom: 1px solid #f0f0f0;">
+                <h5 class="fw-bold text-dark m-0" style="font-size: 1.3rem;"><i class="bi bi-check2-circle text-success me-2"></i>Livraisons effectuées</h5>
+            </div>
+            
+            <!-- SÉPARATRICE INTÉRIEURE (MÊME QUE L'AUTRE) -->
+            <div class="separator-lux"></div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Numéro</th>
+                            <th>Grossiste</th>
+                            <th>Date</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for livraison in livraisons_livrees %}
+                        <tr>
+                            <td class="text-dark fw-bold" style="font-size: 1.05rem;">{{ livraison.numero }}</td>
+                            <td class="fw-bold text-dark" style="font-size: 1.05rem;">{{ livraison.grossiste.get_full_name }}</td>
+                            <td class="text-muted small">{{ livraison.date_livraison|date:"d/m/Y" }}</td>
+                            <td><span class="badge bg-success rounded-pill px-4 py-2 fw-bold" style="font-size: 0.9rem;">Livrée</span></td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">
+                                <i class="bi bi-check-circle fa-2x mb-3 opacity-25"></i><br>
+                                Aucune livraison effectuée.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

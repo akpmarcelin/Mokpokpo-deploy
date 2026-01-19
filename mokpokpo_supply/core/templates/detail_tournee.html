@@ -1,0 +1,248 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Détail tournée - Agri-Supply</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        body { background: #f4f6f8; }
+        .navbar { background-color: #1565C0; }
+        #map { 
+            height: 500px; 
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .etape-card {
+            margin-bottom: 10px;
+            border-left: 4px solid #1565C0;
+        }
+        .etape-numero {
+            font-weight: bold;
+            color: #1565C0;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<nav class="navbar navbar-dark px-4 mb-4">
+    <span class="navbar-brand fw-bold">
+        <i class="bi bi-truck"></i> Détail de la tournée
+    </span>
+    <div class="ms-auto">
+        <a href="{% url 'dashboard_livreur' %}" class="btn btn-outline-light btn-sm">
+            <i class="bi bi-arrow-left"></i> Retour
+        </a>
+    </div>
+</nav>
+
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-info-circle"></i> Résumé de la tournée</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <p class="mb-1"><strong>Date :</strong> {{ date }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p class="mb-1"><strong>Distance totale :</strong> <span class="badge bg-primary">{{ distance_totale }} km</span></p>
+                </div>
+                <div class="col-md-4">
+                    <p class="mb-1"><strong>Nombre d'étapes :</strong> <span class="badge bg-secondary">{{ etapes|length }}</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-map"></i> Carte de la tournée</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div id="map"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-list-ol"></i> Ordre de livraison</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for etape in etapes %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <span class="etape-numero">#{{ forloop.counter }}</span>
+                                    {{ etape.grossiste }}
+                                </h6>
+                                <small class="text-muted">{{ etape.distance_depuis_precedent|default:0 }} km</small>
+                            </div>
+                            <p class="mb-1 small text-muted">
+                                <i class="bi bi-geo-alt"></i> 
+                                <a href="https://www.openstreetmap.org/?mlat={{ etape.latitude }}&mlon={{ etape.longitude }}#map=15/{{ etape.latitude }}/{{ etape.longitude }}" 
+                                   target="_blank" class="text-decoration-none">
+                                    Voir sur la carte
+                                </a>
+                            </p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Attendre que le DOM soit chargé
+    document.addEventListener('DOMContentLoaded', function() {
+        // Vérifier s'il y a des points à afficher
+        const points = [];
+        {% for e in etapes %}
+        (function() {
+            const lat = parseFloat('{{ e.latitude|default:0 }}'.replace(',', '.'));
+            const lon = parseFloat('{{ e.longitude|default:0 }}'.replace(',', '.'));
+            if (!isNaN(lat) && !isNaN(lon) && lat !== 0 && lon !== 0) {
+                points.push({
+                    lat: lat,
+                    lon: lon,
+                    nom: "{{ e.grossiste|escapejs }}",
+                    distance: "{{ e.distance_depuis_precedent|default:0 }} km"
+                });
+            }
+        })();
+        {% endfor %}
+        
+        console.log("Points de livraison:", points);
+
+        // Options de la carte
+        const mapOptions = {
+            center: [8.6195, 0.8248], // Centre par défaut (Togo)
+            zoom: 13,
+            zoomControl: true
+        };
+
+        // Initialisation de la carte
+        const map = L.map('map', mapOptions);
+        
+        // Ajout de la couche OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Si on a des points, on les affiche
+        if (points.length > 0) {
+            const markers = [];
+            const latlngs = [];
+            
+            // Ajout de l'entrepôt (premier point)
+            const entrepot = {
+                lat: parseFloat('{{ etapes.0.entrepot_latitude|default:0 }}'.replace(',', '.')),
+                lon: parseFloat('{{ etapes.0.entrepot_longitude|default:0 }}'.replace(',', '.')),
+                nom: "{{ etapes.0.entrepot_nom|default:'Entrepôt'|escapejs }}"
+            };
+            
+            console.log("Coordonnées de l'entrepôt:", entrepot);
+            
+            if (entrepot.lat && entrepot.lon) {
+                const entrepotIcon = L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                    shadowSize: [41, 41]
+                });
+                
+                const marker = L.marker([entrepot.lat, entrepot.lon], {icon: entrepotIcon})
+                    .addTo(map)
+                    .bindPopup(`<b>${entrepot.nom}</b><br>Point de départ`);
+                
+                markers.push(marker);
+                latlngs.push([entrepot.lat, entrepot.lon]);
+            }
+
+            // Ajout des points de livraison
+            points.forEach((point, index) => {
+                const marker = L.marker([point.lat, point.lon])
+                    .addTo(map)
+                    .bindPopup(`<b>Étape ${index + 1}</b><br>${point.nom}<br>Distance: ${point.distance}`);
+                
+                markers.push(marker);
+                latlngs.push([point.lat, point.lon]);
+            });
+
+            // Ajout de l'itinéraire routier s'il est disponible
+            {% if route_geometry_json %}
+                try {
+                    const routeGeometry = JSON.parse('{{ route_geometry_json|escapejs }}');
+                    
+                    // Afficher l'itinéraire sur la carte
+                    L.geoJSON(routeGeometry, {
+                        style: {
+                            color: '#1565C0',
+                            weight: 4,
+                            opacity: 0.8
+                        }
+                    }).addTo(map);
+                    
+                    // Ajuster la vue pour afficher tout l'itinéraire
+                    const routeLayer = L.geoJSON(routeGeometry);
+                    map.fitBounds(routeLayer.getBounds());
+                } catch (e) {
+                    console.error("Erreur lors de l'affichage de l'itinéraire:", e);
+                    // En cas d'erreur, afficher une ligne droite
+                    if (latlngs.length > 1) {
+                        const polyline = L.polyline(latlngs, {color: '#1565C0'}).addTo(map);
+                        map.fitBounds(polyline.getBounds());
+                    } else if (latlngs.length === 1) {
+                        map.setView([latlngs[0][0], latlngs[0][1]], 15);
+                    }
+                }
+            {% else %}
+                // Si pas d'itinéraire détaillé, afficher une ligne droite
+                if (latlngs.length > 1) {
+                    const polyline = L.polyline(latlngs, {color: '#1565C0'}).addTo(map);
+                    map.fitBounds(polyline.getBounds());
+                } else if (latlngs.length === 1) {
+                    map.setView([latlngs[0][0], latlngs[0][1]], 15);
+                }
+            {% endif %}
+        } else {
+            // Aucun point à afficher, on reste sur la vue par défaut
+            console.warn("Aucun point de livraison valide à afficher sur la carte.");
+        }
+    });
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

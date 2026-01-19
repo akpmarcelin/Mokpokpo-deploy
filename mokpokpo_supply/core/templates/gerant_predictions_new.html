@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prédictions ML - Gérant</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
+    .navbar { background-color: #2E7D32; color:white; }
+    .btn-primary { background-color:#2E7D32; border-color:#2E7D32; }
+    .btn-primary:hover { background-color:#1B5E20; border-color:#1B5E20; }
+    .btn-info { background-color:#1565C0; border-color:#1565C0; color:white; }
+    .btn-success { background-color:#2E7D32; border-color:#2E7D32; }
+    .card { margin-bottom:1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .chart-container { text-align: center; margin: 1rem 0; }
+    .chart-container img { max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .prediction-result { 
+        background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%); 
+        color: white; 
+        padding: 2rem; 
+        border-radius: 15px; 
+        text-align: center;
+        margin: 1rem 0;
+    }
+    .prediction-value { font-size: 2.5rem; font-weight: bold; }
+    .feature-description { 
+        background-color: #f8f9fa; 
+        padding: 0.5rem; 
+        border-radius: 5px; 
+        font-size: 0.9rem; 
+        color: #6c757d; 
+    }
+    .form-section { background-color: white; padding: 2rem; border-radius: 10px; }
+    .alert-custom { 
+        border-radius: 10px; 
+        border: none; 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+    }
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark px-4 mb-4">
+    <a class="navbar-brand" href="#">🌱 Prédictions IA - Gérant</a>
+    <div class="d-flex ms-auto">
+        <a href="{% url 'dashboard_gerant' %}" class="btn btn-outline-light">Retour</a>
+        <a href="{% url 'index' %}" class="btn btn-outline-danger ms-2">Déconnexion</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show alert-custom" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Section Formulaire -->
+    <div class="card form-section">
+        <h4 class="mb-4 text-center">📊 Paramètres de Prédiction</h4>
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.superficie_totale.id_for_label }}" class="form-label">
+                        {{ form.superficie_totale.label }}
+                    </label>
+                    {{ form.superficie_totale }}
+                    <div class="feature-description mt-1">
+                        Surface totale cultivée en hectares
+                    </div>
+                    {% if form.superficie_totale.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.superficie_totale.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.precipitations_mm.id_for_label }}" class="form-label">
+                        {{ form.precipitations_mm.label }}
+                    </label>
+                    {{ form.precipitations_mm }}
+                    <div class="feature-description mt-1">
+                        Précipitations moyennes mensuelles
+                    </div>
+                    {% if form.precipitations_mm.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.precipitations_mm.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.temperature_moyenne.id_for_label }}" class="form-label">
+                        {{ form.temperature_moyenne.label }}
+                    </label>
+                    {{ form.temperature_moyenne }}
+                    <div class="feature-description mt-1">
+                        Température moyenne mensuelle
+                    </div>
+                    {% if form.temperature_moyenne.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.temperature_moyenne.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.age_plants_moyen.id_for_label }}" class="form-label">
+                        {{ form.age_plants_moyen.label }}
+                    </label>
+                    {{ form.age_plants_moyen }}
+                    <div class="feature-description mt-1">
+                        Âge moyen des plants en années
+                    </div>
+                    {% if form.age_plants_moyen.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.age_plants_moyen.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.mois.id_for_label }}" class="form-label">
+                        {{ form.mois.label }}
+                    </label>
+                    {{ form.mois }}
+                    <div class="feature-description mt-1">
+                        Mois de l'année (1-12)
+                    </div>
+                    {% if form.mois.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.mois.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.cout_intrants.id_for_label }}" class="form-label">
+                        {{ form.cout_intrants.label }}
+                    </label>
+                    {{ form.cout_intrants }}
+                    <div class="feature-description mt-1">
+                        Coût total des intrants par hectare
+                    </div>
+                    {% if form.cout_intrants.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.cout_intrants.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg px-5">
+                    🚀 Lancer la Prédiction
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Résultat de prédiction -->
+    {% if prediction_result and prediction_result.success %}
+        <div class="prediction-result">
+            <h5 class="mb-3">🎯 Rendement Prédit</h5>
+            <div class="prediction-value">
+                {{ prediction_result.prediction_rounded }} tonnes
+            </div>
+            <p class="mt-3 mb-0">Basé sur les paramètres saisis</p>
+        </div>
+    {% endif %}
+
+    <!-- Graphiques -->
+    {% if chart_image %}
+        <div class="card">
+            <h4 class="mb-3 text-center">📈 Analyse de la Prédiction</h4>
+            <div class="chart-container">
+                <img src="data:image/png;base64,{{ chart_image }}" alt="Graphique de prédiction">
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Graphiques d'information -->
+    <div class="row">
+        {% if feature_importance_chart %}
+            <div class="col-md-6">
+                <div class="card">
+                    <h5 class="mb-3 text-center">📊 Importance des Variables</h5>
+                    <div class="chart-container">
+                        <img src="data:image/png;base64,{{ feature_importance_chart }}" alt="Importance des variables">
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        {% if seasonal_chart %}
+            <div class="col-md-6">
+                <div class="card">
+                    <h5 class="mb-3 text-center">📅 Tendances Saisonières</h5>
+                    <div class="chart-container">
+                        <img src="data:image/png;base64,{{ seasonal_chart }}" alt="Tendances saisonnières">
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Anciennes prédictions (compatibilité) -->
+    {% if old_predictions %}
+        <div class="card">
+            <h4 class="mb-3">📋 Prédictions Historiques (Ancien modèle)</h4>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-success">
+                        <tr>
+                            <th>Produit</th>
+                            <th>Date prévue</th>
+                            <th>Quantité estimée</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pred in old_predictions %}
+                        <tr>
+                            <td>{{ pred.produit.nom }}</td>
+                            <td>{{ pred.date|date:"d M Y" }}</td>
+                            <td>{{ pred.quantite_estimee }} kg</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Informations sur le modèle -->
+    <div class="card">
+        <h4 class="mb-3">ℹ️ Informations sur le Modèle</h4>
+        <div class="row">
+            {% if feature_info %}
+                <div class="col-md-6">
+                    <h6>Variables utilisées:</h6>
+                    <ul class="list-unstyled">
+                        {% for colonne in feature_info.colonnes_attendues %}
+                            <li class="mb-2">
+                                <strong>{{ colonne }}:</strong> 
+                                {{ feature_info.description.colonne }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6>Caractéristiques:</h6>
+                    <ul>
+                        <li>Type: Régression Linéaire</li>
+                        <li>Features: {{ feature_info.nombre_features }}</li>
+                        <li>Préprocessing: StandardScaler</li>
+                        <li>Sortie: Rendement en tonnes</li>
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
